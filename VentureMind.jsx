@@ -508,10 +508,12 @@ const history = [...messages, { role: "user", content: userText }];
     }
     setLoading(false);
   }
-
-  function handleKey(e) {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+function handleKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
   }
+}
   const showPrompts = messages.length <= 1;
 
   return (
