@@ -474,20 +474,34 @@ function ChatView() {
     setMessages(prev => [...prev, { role: "user", content: userText }]);
     setLoading(true);
     try {
-      const history = [...messages, { role: "user", content: userText }];
+const history = [...messages, { role: "user", content: userText }];
       const apiMessages = history.map(m => ({ role: m.role, content: m.content }));
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: SYSTEM_PROMPT,
-          messages: apiMessages,
-        }),
-      });
+
+      const res = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyABjoZLAoAei1lsRglLJexduhk8s1w_Xzo",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: SYSTEM_PROMPT + "\n\nUser: " + userText
+                  }
+                ]
+              }
+            ]
+          })
+        }
+      );
+
       const data = await res.json();
-      const reply = data.content?.map(b => b.text || "").join("") || "Sorry, something went wrong. Please try again.";
+
+      const reply =
+        data.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Sorry, something went wrong. Please try again.";
+
       setMessages(prev => [...prev, { role: "assistant", content: reply }]);
     } catch {
       setMessages(prev => [...prev, { role: "assistant", content: "Network error. Please check your connection and try again." }]);
@@ -498,7 +512,6 @@ function ChatView() {
   function handleKey(e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   }
-
   const showPrompts = messages.length <= 1;
 
   return (
